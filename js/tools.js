@@ -16,9 +16,9 @@
   // yüzde
   const pct = n =>
     '%' + n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  // çarpan (1 + oran) — 2–4 ondalık, ör. 1,0022
+  // çarpan (1 + oran) — küsüratıyla, virgülden sonra maks 6 hane (sondaki sıfırlar atılır)
   const fac = n =>
-    n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
   // serbest sayı (ondalık opsiyonu)
   const num = (n, d = 2) =>
     n.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: d });
