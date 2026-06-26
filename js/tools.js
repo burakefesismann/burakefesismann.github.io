@@ -16,6 +16,9 @@
   // yüzde
   const pct = n =>
     '%' + n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // çarpan (1 + oran) — 2–4 ondalık, ör. 1,0022
+  const fac = n =>
+    n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
   // serbest sayı (ondalık opsiyonu)
   const num = (n, d = 2) =>
     n.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: d });
@@ -36,9 +39,9 @@
     const list = $('#lineList');
     if (!list) return;
 
-    // başlangıç satırları (toplam 8.500, yedirilen 1500 -> %17,65)
+    // başlangıç: tek kalem (kullanıcı satır ekle ile çoğaltır)
     const SEED = [
-      ['kalem 1', 2400], ['kalem 2', 1850], ['kalem 3', 1250], ['kalem 4', 2100], ['kalem 5', 900]
+      ['kalem 1', 10000]
     ];
 
     function makeRow(name, price) {
@@ -83,7 +86,11 @@
       rows.forEach((row, i) => {
         row.querySelector('.new').textContent = subtotal > 0 ? money(news[i]) + ' ₺' : '—';
       });
-      $('#rate').textContent     = subtotal > 0 ? pct(rate * 100) : '—';
+      $('#rate').textContent     = subtotal > 0 ? '× ' + fac(1 + rate) : '—';
+      const rsub = $('#rateSub');
+      if (rsub) rsub.textContent = subtotal > 0
+        ? 'her fiyatı bununla çarp · +' + pct(rate * 100)
+        : 'her fiyatı bununla çarp';
       $('#subtotal').textContent = money(subtotal) + ' ₺';
       $('#total').textContent    = money(target) + ' ₺';
       $('#delta').textContent    = '+' + money(extra) + ' ₺';
