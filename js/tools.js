@@ -36,9 +36,9 @@
     const list = $('#lineList');
     if (!list) return;
 
-    // başlangıç satırları (brief örneği -> toplam 8.500, yedirilen 1500 -> %17,65)
+    // başlangıç satırları (toplam 8.500, yedirilen 1500 -> %17,65)
     const SEED = [
-      ['Baumit', 2400], ['Fırat', 1850], ['İzocam', 1250], ['Filli Boya', 2100], ['ECA', 900]
+      ['kalem 1', 2400], ['kalem 2', 1850], ['kalem 3', 1250], ['kalem 4', 2100], ['kalem 5', 900]
     ];
 
     function makeRow(name, price) {
@@ -96,7 +96,8 @@
     list.addEventListener('input', e => { if (e.target.classList.contains('price')) recalc(); });
     $('#extra').addEventListener('input', recalc);
     $('#addLine').addEventListener('click', () => {
-      list.appendChild(makeRow('', 0));
+      const n = $$('.line', list).length + 1;
+      list.appendChild(makeRow('kalem ' + n, 0));
       recalc();
       const last = $$('.line .pname', list).pop();
       if (last) last.focus();

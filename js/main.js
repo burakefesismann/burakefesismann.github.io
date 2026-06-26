@@ -32,4 +32,29 @@
       track.appendChild(clone);
     });
   }
+
+  /* ---------- antet'i marka şeridinin ÜSTÜNDE tut ----------
+     Sabit (fixed) antet, sayfa sonuna inince marka şeridine binmesin;
+     şerit görünüme girdikçe antet yukarı itilip barın hemen üstünde park eder.
+     Sadece geniş ekranda (antet fixed iken) çalışır; dar ekranda statik. */
+  var antet = document.querySelector('.antet--fixed');
+  var marquee = document.querySelector('.marquee');
+  if (antet && marquee) {
+    var GAP = 24;      // şerit ile antet arası boşluk
+    var MIN_BOTTOM = 96; // varsayılan (CSS ile aynı)
+    var ticking = false;
+
+    function placeAntet() {
+      ticking = false;
+      if (getComputedStyle(antet).position !== 'fixed') { antet.style.bottom = ''; return; }
+      var mTop = marquee.getBoundingClientRect().top;
+      var needed = window.innerHeight - mTop + GAP; // şerit yükseldikçe büyür
+      antet.style.bottom = Math.max(MIN_BOTTOM, needed) + 'px';
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(placeAntet); } }
+
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    placeAntet();
+  }
 })();
