@@ -90,9 +90,11 @@ img,svg{display:block;max-width:100%}
   border-bottom:1px solid var(--line);
 }
 .brand{
+  display:inline-flex;align-items:center;
   font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--ink);
 }
 .brand .b{color:var(--cop-2)}
+.brand-logo{height:32px;width:auto;display:block}
 .site-nav{display:flex;gap:clamp(14px,3vw,28px);font-family:var(--mono);font-size:12px;letter-spacing:.1em}
 .site-nav a{color:var(--mut);padding:4px 0;position:relative;transition:color .25s ease}
 .site-nav a:hover,.site-nav a[aria-current="page"]{color:var(--ink)}
