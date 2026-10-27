@@ -28,14 +28,95 @@
   const $$ = (s, r = document) => Array.prototype.slice.call(r.querySelectorAll(s));
 
   /* =====================================================================
-     MODÜL 01 — Nakliyeyi fiyata yedir  (TAM)
+     MODÜL 01 — Faturadaki iskontoyu yüzdeye çevir  (TAM)
+     faturada iskontolar ₺ yazar; zincir oranı bulmak için her biri
+     bir öncekinden kalan tutara bölünür:
+       kalan_0 = brüt ; oran_i = tutar_i / kalan_(i-1) ; kalan_i = kalan_(i-1) - tutar_i
+     "iskonto sonrası" seçiliyse brüt = girilen + Σ tutar.
+     ===================================================================== */
+  function initFatura() {
+    const root = $('#mod01');
+    if (!root) return;
+    let baz = 'brut';
+
+    // tr-TR girdi: "25.000,00" · "25.000" · "25000.5" · "₺ 9 000" hepsi olur
+    const parseTR = s => {
+      s = String(s || '').replace(/[^\d.,-]/g, '');
+      if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+      else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+      return Math.max(0, parseFloat(s) || 0);
+    };
+    // zincirdeki oran: gereksiz ondalık yok (25 · 12,5 · 7,33)
+    const rateTxt = n => {
+      const r = Math.round(n * 100) / 100;
+      return r.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    };
+
+    function calc() {
+      const rows = $$('.line', root);
+      const amts = rows.map(r => parseTR(r.querySelector('.price').value));
+      const sum  = amts.reduce((a, b) => a + b, 0);
+      const girilen = parseTR($('#fatToplam').value);
+      const brut = baz === 'net' ? girilen + sum : girilen;
+
+      let kalan = brut;
+      const oranlar = [];
+      rows.forEach((row, i) => {
+        const cell = row.querySelector('.new');
+        if (amts[i] > 0 && kalan > 0) {
+          const o = amts[i] / kalan * 100;
+          oranlar.push(o);
+          cell.textContent = '%' + rateTxt(o);
+          kalan -= amts[i];
+        } else {
+          cell.textContent = '—';
+        }
+      });
+
+      const ok = brut > 0 && sum <= brut;
+      const zincir = oranlar.map(rateTxt).join(' + ');
+      $('#fatZincir').textContent = ok && oranlar.length ? zincir : '—';
+      $('#fatKopya').dataset.copy = ok ? zincir : '';
+      $('#fatToplamOran').textContent = ok ? pct(sum / brut * 100) : '—';
+      $('#fatToplamTutar').textContent = ok
+        ? money(sum) + ' ₺' + (baz === 'net' ? ' · brüt ' + money(brut) + ' ₺' : '')
+        : (brut > 0 ? 'iskontolar toplamı aşıyor' : '—');
+      $('#fatNet').textContent  = ok ? money(brut - sum) + ' ₺' : '—';
+      $('#fatCarpan').textContent = ok ? 'net çarpan × ' + fac((brut - sum) / brut) : '—';
+    }
+
+    $$('[data-fbaz]', root).forEach(btn => btn.addEventListener('click', () => {
+      baz = btn.getAttribute('data-fbaz');
+      $$('[data-fbaz]', root).forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      $('#fatToplamLbl').textContent = baz === 'net'
+        ? 'fatura toplamı · iskonto sonrası (₺)'
+        : 'fatura toplamı · iskonto öncesi (₺)';
+      calc();
+    }));
+
+    const kopya = $('#fatKopya');
+    kopya.addEventListener('click', () => {
+      const t = kopya.dataset.copy;
+      if (!t || !navigator.clipboard) return;
+      navigator.clipboard.writeText(t).then(() => {
+        kopya.textContent = 'kopyalandı ✓';
+        setTimeout(() => { kopya.textContent = 'kopyala'; }, 1400);
+      }).catch(() => {});
+    });
+
+    root.addEventListener('input', calc);
+    calc();
+  }
+
+  /* =====================================================================
+     MODÜL 02 — Nakliyeyi fiyata yedir  (TAM)
      ara_toplam = Σ fiyat
      oran = yedirilecek / ara_toplam
      yeni_fiyat = fiyat × (1 + oran)
      yuvarlama: her satır 2 ondalık; kalan kuruş farkı son dolu satıra yedirilir
      (largest-remainder mantığı) -> yeni_toplam = ara_toplam + yedirilecek (tam).
      ===================================================================== */
-  function initMod01() {
+  function initNakliye() {
     const list = $('#lineList');
     if (!list) return;
 
@@ -114,10 +195,10 @@
   }
 
   /* =====================================================================
-     MODÜL 02 — KDV  (ekle: net→brüt · ayır: brüt→net)
+     MODÜL 03 — KDV  (ekle: net→brüt · ayır: brüt→net)
      ===================================================================== */
   function initKdv() {
-    const root = $('#mod02');
+    const root = $('#mod03');
     if (!root) return;
     let mode = 'ekle';
 
@@ -146,11 +227,11 @@
   }
 
   /* =====================================================================
-     MODÜL 03 — Zincirleme iskonto
+     MODÜL 04 — Zincirleme iskonto
      net = liste × Π(1 - d/100) ; toplam indirim = 1 - net/liste
      ===================================================================== */
   function initIskonto() {
-    const root = $('#mod03');
+    const root = $('#mod04');
     if (!root) return;
 
     function calc() {
@@ -170,12 +251,12 @@
   }
 
   /* =====================================================================
-     MODÜL 04 — Fiyatlandırma
+     MODÜL 05 — Fiyatlandırma
      markup (üzerine ekle): satış = maliyet × (1 + o)
      margin (kâr marjı):    satış = maliyet / (1 - o)
      ===================================================================== */
   function initMarj() {
-    const root = $('#mod04');
+    const root = $('#mod05');
     if (!root) return;
     let mode = 'markup';
 
@@ -204,11 +285,11 @@
   }
 
   /* =====================================================================
-     MODÜL 05 — Birim çevirici (3 bağımsız çevirim)
+     MODÜL 06 — Birim çevirici (3 bağımsız çevirim)
      a) adet ↔ koli ↔ palet   b) m² ↔ kutu   c) kg ↔ ton
      ===================================================================== */
   function initCevir() {
-    const root = $('#mod05');
+    const root = $('#mod06');
     if (!root) return;
 
     function calc() {
@@ -236,7 +317,7 @@
   }
 
   /* ---------- başlat ---------- */
-  [initMod01, initKdv, initIskonto, initMarj, initCevir].forEach(fn => {
+  [initFatura, initNakliye, initKdv, initIskonto, initMarj, initCevir].forEach(fn => {
     try { fn(); } catch (e) { /* bir modül bağımsız; biri patlarsa diğerleri çalışsın */ }
   });
 })();

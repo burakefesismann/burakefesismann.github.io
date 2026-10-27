@@ -65,7 +65,7 @@
           <line x1="8" y1="9" x2="8" y2="21" stroke="#e3a86c" stroke-width="1"/>
           <line x1="262" y1="9" x2="262" y2="21" stroke="#e3a86c" stroke-width="1"/>
           <text x="135" y="10" text-anchor="middle"
-                style="fill:#8aa0b7;font-family:var(--mono);font-size:11px;letter-spacing:.1em">5 modül</text>
+                style="fill:#8aa0b7;font-family:var(--mono);font-size:11px;letter-spacing:.1em">6 modül</text>
         </svg>
         <p class="intro reveal d4">Günlük nalbur / yapı malzemeleri işine yarayan küçük hesap modülleri.
            Her şey anında, tarayıcıda hesaplanır — kayıt yok, sunucu yok. Sayılar tr-TR biçiminde
@@ -74,10 +74,78 @@
         <!-- ===== modüller ===== -->
         <div class="modules">
 
-          <!-- ===================== MODÜL 01 — TAM ===================== -->
+          <!-- ===================== MODÜL 01 — FATURA İSKONTOSU → YÜZDE ===================== -->
           <article class="module module--wide" id="mod01">
             <div class="module__head">
               <span class="module__no">modül 01</span>
+              <span class="module__tag">tam · çalışır</span>
+            </div>
+            <h2>Faturadaki iskontoyu yüzdeye çevir</h2>
+            <p class="module__desc">faturada ₺ olarak yazan iskontoları (en fazla 3) zincir yüzdeye çevir → ör. 20 + 5 + 10</p>
+
+            <div class="seg" role="group" aria-label="fatura toplamı türü">
+              <button type="button" data-fbaz="brut" aria-pressed="true">toplam iskonto öncesi</button>
+              <button type="button" data-fbaz="net" aria-pressed="false">toplam iskonto sonrası</button>
+            </div>
+
+            <div class="row" style="max-width:280px;margin-bottom:18px">
+              <div class="field" style="flex:1">
+                <label for="fatToplam" id="fatToplamLbl">fatura toplamı · iskonto öncesi (₺)</label>
+                <input type="text" id="fatToplam" value="100.000" inputmode="decimal" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="lines lines--isk" id="fatList" role="table" aria-label="iskonto listesi">
+              <div class="lines__head" role="row">
+                <span role="columnheader">iskonto (faturadaki sırayla)</span>
+                <span role="columnheader">tutar ₺</span>
+                <span role="columnheader">oran</span>
+              </div>
+              <div class="line" role="row">
+                <input type="text" class="pname" value="ödeme iskontosu" aria-label="1. iskonto adı">
+                <input type="text" class="price" value="25.000" inputmode="decimal" autocomplete="off" aria-label="1. iskonto tutarı">
+                <span class="new" role="cell">—</span>
+              </div>
+              <div class="line" role="row">
+                <input type="text" class="pname" value="nakliye iskontosu" aria-label="2. iskonto adı">
+                <input type="text" class="price" value="9.000" inputmode="decimal" autocomplete="off" aria-label="2. iskonto tutarı">
+                <span class="new" role="cell">—</span>
+              </div>
+              <div class="line" role="row">
+                <input type="text" class="pname" value="" placeholder="3. iskonto (varsa)" aria-label="3. iskonto adı">
+                <input type="text" class="price" value="" placeholder="0" inputmode="decimal" autocomplete="off" aria-label="3. iskonto tutarı">
+                <span class="new" role="cell">—</span>
+              </div>
+            </div>
+
+            <div class="metrics">
+              <div class="metric metric--cop">
+                <span class="k">iskonto zinciri</span>
+                <span class="v" id="fatZincir">—</span>
+                <span class="sub"><button class="btn btn--icon" id="fatKopya" type="button">kopyala</button></span>
+              </div>
+              <div class="metric">
+                <span class="k">toplam iskonto</span>
+                <span class="v" id="fatToplamOran">—</span>
+                <span class="sub" id="fatToplamTutar">—</span>
+              </div>
+              <div class="metric">
+                <span class="k">net tutar</span>
+                <span class="v" id="fatNet">—</span>
+                <span class="sub" id="fatCarpan">—</span>
+              </div>
+            </div>
+
+            <p class="note">her iskonto, bir öncekinden kalan tutar üzerinden hesaplanır (zincirleme):
+               100.000'den 25.000 → %25 · kalan 75.000'den 9.000 → %12 · sonuç <b>25 + 12</b>.
+               tutarları faturadan kopyalayıp yapıştırabilirsin (25.000,00 biçimi de olur).
+               fatura toplamı iskonto düşülmüş hâliyle yazıyorsa üstten "toplam iskonto sonrası"nı seç.</p>
+          </article>
+
+          <!-- ===================== MODÜL 02 — TAM ===================== -->
+          <article class="module module--wide" id="mod02">
+            <div class="module__head">
+              <span class="module__no">modül 02</span>
               <span class="module__tag">tam · çalışır</span>
             </div>
             <h2>Nakliyeyi fiyata yedir</h2>
@@ -126,10 +194,10 @@
                kayarsa kalan fark son satıra yedirilir — böylece yeni toplam tam olarak ara toplam + yedirilen tutar olur.</p>
           </article>
 
-          <!-- ===================== MODÜL 02 — KDV ===================== -->
-          <article class="module" id="mod02">
+          <!-- ===================== MODÜL 03 — KDV ===================== -->
+          <article class="module" id="mod03">
             <div class="module__head">
-              <span class="module__no">modül 02</span>
+              <span class="module__no">modül 03</span>
               <span class="module__tag">iskelet</span>
             </div>
             <h3>KDV hesapla</h3>
@@ -149,10 +217,10 @@
             <div class="result" style="border-top:0;padding-top:6px"><span class="k">KDV tutarı</span><span class="v" style="font-size:1.1rem;color:var(--ink)" id="kdvVergi">—</span></div>
           </article>
 
-          <!-- ===================== MODÜL 03 — İSKONTO ===================== -->
-          <article class="module" id="mod03">
+          <!-- ===================== MODÜL 04 — İSKONTO ===================== -->
+          <article class="module" id="mod04">
             <div class="module__head">
-              <span class="module__no">modül 03</span>
+              <span class="module__no">modül 04</span>
               <span class="module__tag">iskelet</span>
             </div>
             <h3>Zincirleme iskonto</h3>
@@ -169,10 +237,10 @@
             <div class="result" style="border-top:0;padding-top:6px"><span class="k">toplam indirim</span><span class="v" style="font-size:1.1rem;color:var(--ink)" id="iskOran">—</span></div>
           </article>
 
-          <!-- ===================== MODÜL 04 — KÂR MARJI ===================== -->
-          <article class="module" id="mod04">
+          <!-- ===================== MODÜL 05 — KÂR MARJI ===================== -->
+          <article class="module" id="mod05">
             <div class="module__head">
-              <span class="module__no">modül 04</span>
+              <span class="module__no">modül 05</span>
               <span class="module__tag">iskelet</span>
             </div>
             <h3>Fiyatlandırma</h3>
@@ -193,10 +261,10 @@
             <p class="note" id="marNot">—</p>
           </article>
 
-          <!-- ===================== MODÜL 05 — BİRİM ÇEVİRİCİ ===================== -->
-          <article class="module" id="mod05">
+          <!-- ===================== MODÜL 06 — BİRİM ÇEVİRİCİ ===================== -->
+          <article class="module" id="mod06">
             <div class="module__head">
-              <span class="module__no">modül 05</span>
+              <span class="module__no">modül 06</span>
               <span class="module__tag">iskelet</span>
             </div>
             <h3>Birim çevirici</h3>
