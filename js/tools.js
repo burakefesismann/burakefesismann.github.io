@@ -46,10 +46,10 @@
       else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
       return Math.max(0, parseFloat(s) || 0);
     };
-    // zincirdeki oran: gereksiz ondalık yok (25 · 12,5 · 7,33)
+    // zincirdeki oran: maks 3 ondalık, gereksiz sıfır yok (25 · 12,5 · 7,333)
     const rateTxt = n => {
-      const r = Math.round(n * 100) / 100;
-      return r.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+      const r = Math.round(n * 1000) / 1000;
+      return r.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
     };
 
     function calc() {
@@ -77,7 +77,7 @@
       const zincir = oranlar.map(rateTxt).join(' + ');
       $('#fatZincir').textContent = ok && oranlar.length ? zincir : '—';
       $('#fatKopya').dataset.copy = ok ? zincir : '';
-      $('#fatToplamOran').textContent = ok ? pct(sum / brut * 100) : '—';
+      $('#fatToplamOran').textContent = ok ? '%' + rateTxt(sum / brut * 100) : '—';
       $('#fatToplamTutar').textContent = ok
         ? money(sum) + ' ₺' + (baz === 'net' ? ' · brüt ' + money(brut) + ' ₺' : '')
         : (brut > 0 ? 'iskontolar toplamı aşıyor' : '—');
